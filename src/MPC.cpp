@@ -99,20 +99,13 @@ class FG_eval {
 
      // Here's `x` to get you started.
      // The idea here is to constraint this value to be 0.
-     fg[1 + x_start + i] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
-     fg[1 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-     fg[1 + psi_start + i] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
-     fg[1 + v_start + i] = v1 - (v0 + a0 * dt);
-     fg[1 + cte_start + i] =  cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-     fg[1 + epsi_start + i] =  epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
+     fg[2 + x_start + i] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
+     fg[2 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
+     fg[2 + psi_start + i] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
+     fg[2 + v_start + i] = v1 - (v0 + a0 * dt);
+     fg[2 + cte_start + i] =  cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+     fg[2 + epsi_start + i] =  epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
    }
-
-
-
-
-
-
-
   }
 };
 
@@ -127,14 +120,21 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   size_t i;
   typedef CPPAD_TESTVECTOR(double) Dvector;
 
+  double x = state[0];
+  double y = state[1];
+  double psi = state[2];
+  double v = state[3];
+  double cte = state[4];
+  double epsi = state[5];
+
   // TODO: Set the number of model variables (includes both states and inputs).
   // For example: If the state is a 4 element vector, the actuators is a 2
   // element vector and there are 10 timesteps. The number of variables is:
   //
   // 4 * 10 + 2 * 9
-  size_t n_vars = 0;
+  size_t n_vars = N* 6 + (N-1) * 2;
   // TODO: Set the number of constraints
-  size_t n_constraints = 0;
+  size_t n_constraints = N * 6;
 
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
@@ -146,6 +146,26 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   Dvector vars_lowerbound(n_vars);
   Dvector vars_upperbound(n_vars);
   // TODO: Set lower and upper limits for variables.
+
+  // Set all non-actuators upper and lowerlimits
+ // to the max negative and positive values.
+ for (int i = 0; i < delta_start; i++) {
+   vars_lowerbound[i] = -1.0e19;
+   vars_upperbound[i] = 1.0e19;
+ }
+
+
+ for (int i = delta_start; i < a_start; i++) {
+   vars_lowerbound[i] = -0.436332;
+   vars_lowerbound[i] = 0.436332;
+ }
+
+ // Acceleration/decceleration upper and lower limits.
+ // NOTE: Feel free to change this to something else.
+ for (int i = a_start; i < n_vars; i++) {
+   vars_lowerbound[i] = -1.0;
+   vars_upperbound[i] = 1.0;
+ }
 
   // Lower and upper limits for the constraints
   // Should be 0 besides initial state.
