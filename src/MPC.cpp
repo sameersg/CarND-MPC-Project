@@ -48,18 +48,18 @@ class FG_eval {
     // the Solver function below.
     fg[0] = 0;
 
-    for(int i = 0; i <N i++){
+    for(int i = 0; i <N; i++){
       fg[0] += 2000*CppAD::pow(vars[cte_start + i] - ref_cte,2);
       fg[0] += 2000*CppAD::pow(vars[epsi_start + i] - ref_epsi,2);
       fg[0] += 2000*CppAD::pow(vars[v_start + i] - ref_v,2);
     }
 
-    for(int i = 0; i <N -1 i++){
+    for(int i = 0; i <N -1; i++){
       fg[0] += 5*CppAD::pow(vars[delta_start + i] ,2);
       fg[0] += 5*CppAD::pow(vars[a_start + i] ,2);
     }
 
-    for(int i = 0; i <N -2 i++){
+    for(int i = 0; i <N -2; i++){
       fg[0] += 200*CppAD::pow(vars[delta_start + i +1] - vars[delta_start + i] ,2);
       fg[0] += 10*CppAD::pow(vars[a_start + i + 1] - vars[a_start +i] ,2);
     }
@@ -73,7 +73,7 @@ class FG_eval {
   fg[1 + epsi_start] = vars[epsi_start];
 
   // The rest of the constraints
-   for (int i = 1; i < N -1; t++) {
+   for (int i = 1; i < N -1; i++) {
      // The state at time t+1 .
      AD<double> x1 = vars[x_start + i +1];
      AD<double> y1 = vars[y_start + i+1];
@@ -156,8 +156,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
 
  for (int i = delta_start; i < a_start; i++) {
-   vars_lowerbound[i] = -0.436332;
-   vars_lowerbound[i] = 0.436332;
+   vars_lowerbound[i] = -0.436332*Lf;
+   vars_lowerbound[i] = 0.436332*Lf;
  }
 
  // Acceleration/decceleration upper and lower limits.
@@ -175,6 +175,20 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
     constraints_lowerbound[i] = 0;
     constraints_upperbound[i] = 0;
   }
+
+  constraints_lowerbound[x_start] = x;
+  constraints_lowerbound[y_start] = y;
+  constraints_lowerbound[psi_start] = psi;
+  constraints_lowerbound[v_start] = v;
+  constraints_lowerbound[cte_start] = cte;
+  constraints_lowerbound[epsi_start] = epsi;
+
+  constraints_upperbound[x_start] = x;
+  constraints_upperbound[y_start] = y;
+  constraints_upperbound[psi_start] = psi;
+  constraints_upperbound[v_start] = v;
+  constraints_upperbound[cte_start] = cte;
+  constraints_upperbound[epsi_start] = epsi;
 
   // object that computes objective and constraints
   FG_eval fg_eval(coeffs);
@@ -217,5 +231,15 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
-  return {};
+  vector<double> result;
+
+  result.push_back(solution.x[delta_start]);
+  result.push_back(solution.x[a_start]);
+
+  for(int i = 0; i < N-1; i++){
+    result.push_back(solution.x[x_start + i + 1]);
+    result.push_back(solution.x[y_start + i + 1]);
+  }
+
+  return result;
 }
