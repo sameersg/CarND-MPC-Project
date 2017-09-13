@@ -7,7 +7,7 @@ using CppAD::AD;
 
 // TODO: Set the timestep length and duration
 size_t N = 10;
-double dt = 0.05;
+double dt = 0.05; // set delta time using latency as reference
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -239,12 +239,12 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
   //re-initialize
-  this->N_x = {};
-  this->N_y = {};
+  N_x.clear();
+  N_y.clear();
 
   for(int i = 0 ;i<N; i++){
-    this->N_x.push_back(solution.x[x_start+i]);
-    this->N_y.push_back(solution.x[y_start+i]);
+    N_x.push_back(solution.x[x_start+i]);
+    N_y.push_back(solution.x[y_start+i]);
 
   }
 

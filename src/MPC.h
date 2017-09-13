@@ -11,7 +11,6 @@ class MPC {
 
  vector<double> N_x;
  vector<double> N_y;
- vector<double> N_psi;
 
   MPC();
 

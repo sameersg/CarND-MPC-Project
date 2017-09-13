@@ -100,8 +100,8 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          double throttle_0 = j[1]["throttle"];
-          double steer_0 = j[1]["steering_angle"];
+          double throttle_value = j[1]["throttle"];
+          double steer_value = j[1]["steering_angle"];
 
 
           Eigen::VectorXd ptsx_transform(ptsx.size());
@@ -112,8 +112,7 @@ int main() {
             double shift_y = ptsy[i]-py;
             ptsx_transform[i] = shift_x * cos(-psi) - shift_y * sin(-psi);
             ptsy_transform[i] = shift_x * sin(-psi) + shift_y * cos(-psi);
-          }
-          // px = 0, py = 0 , psi = 0
+          }  // px = 0, py = 0 , psi = 0
 
           auto coeffs = polyfit(ptsx_transform, ptsy_transform,3);
           double epsi = 0 - atan(coeffs[1]);
@@ -123,28 +122,24 @@ int main() {
           //Latency predict at t+1
           double px_mod = v * dt;
           double py_mod = 0;
-          double psi_mod = -(v/Lf)* steer_0 * dt;
-          double v_mod = v +  throttle_0 * dt;
+          double psi_mod = -(v/Lf)* steer_value * dt;
+          double v_mod = v +  throttle_value * dt;
           double cte_mod = cte + v * sin(epsi) * dt;
-          double epsi_mod = epsi + (v/Lf) * steer_0 * dt;
+          double epsi_mod = epsi + (v/Lf) * steer_value * dt;
 
-          double steer_value;
-          double throttle_value;
+
 
           Eigen::VectorXd state(6);
           state << px_mod, py_mod, psi_mod, v_mod, cte_mod, epsi_mod;
 
           auto vars = mpc.Solve(state, coeffs);
 
-          steer_value = -vars[0]/deg2rad(25);
-          throttle_value = vars[1];
-
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = throttle_value;
+          msgJson["steering_angle"] = -vars[0]/deg2rad(25);
+          msgJson["throttle"] = vars[1];
 
           //Display the MPC predicted trajectory
           vector<double> mpc_x_vals = mpc.N_x;;
