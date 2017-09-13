@@ -3,18 +3,18 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
-##Reflections
+## Reflections
 ![](mpc.gif)
 
 
-###Model
+### Model
 The Calaculation of the MPC Cost is defined in MPC.cpp (51-66).
 The first for loop conatains equations to a reference state, The Cost track error, psi angle error and reference velocity error.
 The next for loop contains the actuators, Steering and Accelerator to minimize the use in MPC. 
 And the last loop with actuators between two sequential time steps. Steering and Accelerator. 
 The Constrains for the Model are defined in MPC.cpp Line (68-109).
 
-###N & dt
+### N & dt
 
 N & dt are the hyperparameters to tune the models predictive controller. I test my model with N 5 and dt 0.01, it not worked fine. I think it was not enough input for the Model. Trying N 10 and dt 0.10 improved the model in first phase, after the second curve the car crashed, then i tried dt 0.05 and it worked fine for the whole track. To deal with the 100ms latency i predicted the cars state with the coefficients (px, py, psiy v) before sending it to the model.
 
