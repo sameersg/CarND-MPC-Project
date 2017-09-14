@@ -14,11 +14,19 @@ The next for loop contains the actuators, Steering and Accelerator to minimize t
 And the last loop with actuators between two sequential time steps. Steering and Accelerator. 
 The Constrains for the Model are defined in MPC.cpp Line (68-109).
 
-### N & dt
+The convertation of the reference waypoints to vehicle coordinate system is done in the Main.cpp Line (110-115) Also a polynomial fit ist used.  Main.cpp Line (117) 
 
-N & dt are the hyperparameters to tune the models predictive controller. I test my model with N 5 and dt 0.01, it not worked fine. I think it was not enough input for the Model. Trying N 10 and dt 0.10 improved the model in first phase, after the second curve the car crashed, then i tried dt 0.05 and it worked fine for the whole track. To deal with the 100ms latency i predicted the cars state with the coefficients (px, py, psiy v) before sending it to the model.
+### Prediction Horizon
 
-The convertation of the reference waypoints to vehicle coordinate system is done in the Main.cpp Line (110-115) Also a polynomial fit ist used.  Main.cpp Line (117) The Model works fine at 70mph, average speed ist 65mph
+N & dt are the hyperparameters to tune the models predictive controller. If the value of N is too high then, the number of parameters to be calculated woud be too much and would take lot of time. This calaculation would not be in realtime anymore. 
+If the dt parameter ist set too high, it will lead to unstablety, because the commands are changing too late and if it is too low then the predictedt future would be very small. This would make the task difficlult for the optimiser  to reach a desired state in less time. 
+
+I tested my model with N= 5 and dt = 0.01, it was not working fine. It was not enough input for the Model. Updating N= 10 and dt = 0.10 improved the model in first phase, after the second curve the car crashed, the commands for changing were too late.
+Using dt=0.08 was optmimal for the whole track. The Average Speed now is 55mph
+
+### Latency 
+Dealing with Latency is done by applysing a kinematic update on the current state with dt to arrive on the predicted state. This state is then passed to the mpc, so it knows where the car might be so the next control input can be set.
+
 
 
 ## Dependencies

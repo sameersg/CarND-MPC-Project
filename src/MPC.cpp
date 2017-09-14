@@ -7,7 +7,7 @@ using CppAD::AD;
 
 // TODO: Set the timestep length and duration
 size_t N = 10;
-double dt = 0.05; // set delta time using latency as reference
+double dt = 0.08; // set delta time using latency as reference
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -20,7 +20,7 @@ double dt = 0.05; // set delta time using latency as reference
 //
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
-const double ref_v = 100;
+const double ref_v = 70;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -248,8 +248,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   }
 
-  vector<double> result ={solution.x[delta_start+1], solution.x[a_start+1],
-                          solution.x[cte_start+1], solution.x[v_start+1]};
+ vector<double> result ={solution.x[delta_start], solution.x[a_start],
+                          solution.x[cte_start+1], solution.x[v_start+1]} ;
 
 
   return  result ;

@@ -64,7 +64,7 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   auto result = Q.solve(yvals);
   return result;
 }
-const double dt = 0.05;
+const double dt = 0.08;
 const double Lf = 2.67;
 
 int main() {
@@ -125,7 +125,7 @@ int main() {
           double psi_mod = -(v/Lf)* steer_value * dt;
           double v_mod = v +  throttle_value * dt;
           double cte_mod = cte + v * sin(epsi) * dt;
-          double epsi_mod = epsi + (v/Lf) * steer_value * dt;
+          double epsi_mod = epsi + (v/Lf) * -steer_value * dt;
 
 
 
